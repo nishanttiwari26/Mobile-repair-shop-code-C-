@@ -1,0 +1,236 @@
+#include<iostream>            //insert,update,new,delete,search
+#include<stdio.h>
+#include<conio.h>
+#include<windows.h>
+#include<fstream>
+#include<math.h>
+#include<string>
+using namespace std;
+class user
+{ 
+public:
+	char name[30],lastname[30],address[50],email[30],devicename[30],modelname[30];
+	float price;
+	long int phno,pincode,prid;
+	void input();
+	void show()
+	{
+		cout<<"\n Welcome "<<name<<" "<<lastname<<" your request to repair "<<devicename<<" model : "<<modelname<<" is registered \n";
+	}
+	void display()
+	{
+		cout<<"  \t your request for your device repair report is processing \n";
+		cout<<" \t \t please wait  \n";
+		system("pause");
+		cout<<" welcome "<<name<<endl;
+		cout<<"your device : "<<devicename<<" is getting ready to get back to you \n";
+		cout<<" respected dates to pickup your device will be provided through text message \n";
+		cout<<"thank you \n";
+		
+	}
+	void registered()
+	{
+		cout<<"\n Enter your registerd product repair PR id here : ";
+		cin>>prid;
+	}
+}; 
+
+void user::input()
+{    
+     cout<<"YOU CAN ENTER YOUR DETAILS HERE \n";
+	cout<<" \n Please enter your first name here : ";
+	cin>>name;
+	cout<<"\n please enter your last name here : ";
+	cin>>lastname;
+	cout<<"\n Enter your phone number : ";
+	cin>>phno;
+	cout<<" \n Enter your email address : ";
+	cin>>email;
+	cout<<"\n Enter the name of your device : ";
+	cin>>devicename;
+	cout<<"\n Enter the model name : ";
+	cin>>modelname;
+	cout<<"\n Enter the price of device when bought : ";
+	cin>>price;
+	cout<<"\n Enter your address : ";
+	cin>>address;
+	cout<<"\n Enter your pincode : ";
+	cin>>pincode;
+}
+void menu()
+{
+	cout<<"\n \t \t *********************WELCOME TO THE TECH REPAIR SHOP*************************** \t  \n";
+	cout<<"Press 1 : to register for repair of your device \n";
+	cout<<"Press 2 : to display your device report \n";
+	cout<<"Press 3 : to search your device  \n";
+	cout<<"Press 4 : to modify your registered repair request  \n";
+	cout<<"Press 5 : to delete your repair request \n";
+	cout<<"Press 6 : to get progress of repair \n";
+	cout<<"Press 7 : to EXIT \n";
+}
+fstream file,temp;
+int main()
+{
+	user customer;
+	int choice;
+	while(1)
+	{
+		menu();
+		cin>>choice;
+		switch(choice)
+		{
+			case 1: //saving
+				{
+					customer.input();
+					file.open("register.txt",ios::out | ios::app | ios::binary);
+					file.write((char*) &customer,sizeof(customer));
+					system("CLS");
+					cout<<"\n Data entered successfully ." ;
+					file.close();
+					customer.show();
+					system("pause");
+					break;
+				}
+			case 2:   //showing the data
+				{
+				file.open("register.txt",ios::in |ios::binary);
+				while(file.read((char *) &customer,sizeof(customer)))	
+				{
+					customer.display();
+					break;
+				}
+				file.close();
+				system("pause");
+					break;
+				}
+			case 3: //searching
+				{
+					long int phno1,flag=0;
+					system("CLS");
+				file.open("register.txt",ios::in |ios::binary);
+				cout<<" enter your phone number \n";
+				cin>>phno1;
+				while(file.read((char *) &customer,sizeof(customer)))	
+				{
+					if(phno1==customer.phno)
+					{
+						customer.display();
+						
+						break;
+					}
+					else
+					flag=1;
+				}
+				file.close();
+				if(flag==1)
+				cout<<"\n sorry no matching record found... :( \n";
+				system("pause");
+				
+					break;
+				}
+			case 4:  //modiy data
+				{
+		    		long int phno1,var,flag;
+				
+					system("CLS");
+				file.open("register.txt",ios::in |ios::out |ios::binary);
+				cout<<" enter your phone number \n";
+				cin>>phno1;
+				while(file.read((char *) &customer,sizeof(customer)))	
+				{
+					if(phno1==customer.phno)
+					{
+						customer.show();
+						flag=0;
+						break;
+					}
+					else
+					flag=1;
+				}
+				if(flag==0)
+				{
+					cout<<" matching data found \n";
+					customer.show();
+					cout<<"do you want to still edit data ? \n";
+					cout<<"enter 1 to continue  \n";
+					cin>>var;
+					if(var==1)
+					{
+						file.seekp(-1*sizeof(customer), ios::cur);
+					customer.input();
+					file.write((char *) &customer, sizeof(customer));
+				}
+				file.close();
+					
+				}
+				if(flag==1)
+				{
+					cout<<" \n Sorry no record found \n";
+					break;
+					system("pause");
+				}
+			}	
+			case 5:  //deleting
+				{
+							long int phno1,flag;
+					system("CLS");
+				file.open("register.txt",ios::in |ios::binary);
+				cout<<" enter record you want to delete \n";
+				cin>>phno1;
+				while(file.read((char *) &customer,sizeof(customer)))	
+				{
+					if(phno1==customer.phno)
+					{
+						flag=0;
+						break;
+					}
+					else
+					flag=1;
+				}
+				temp.open("databkp.txt", ios::in | ios::out|ios::binary);
+				if(flag==0)
+				{
+					  file.seekg(0);
+						while(file.read((char *) &customer,sizeof(customer)))	
+				{
+					if(phno1!=customer.phno)
+					{
+						temp.write((char*)&customer,sizeof(customer));
+						
+					}
+				cout<<" \n Data deleted successfully ! \n ";
+					
+				}
+				if(flag==1)
+				{
+				
+				cout<<"\n sorry no matching record found... :( \n";
+				system("pause");
+			}
+	           remove("register.txt");
+			   rename("databkp.txt","register.txt")	;	
+			   	
+			   	file.close();
+			   	temp.close();
+	
+					break;
+				}
+			}	
+			case 6:
+				{
+					customer.display();
+					break;
+				}
+			case 7:
+				{
+					exit (0);
+				}
+		  default:
+		  	cout<<"\n Please enter some valid option \n";
+		}
+	
+}
+	return 0;
+
+}
+
